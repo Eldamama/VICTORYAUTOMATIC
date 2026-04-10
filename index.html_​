@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Victory Automatic</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+
+    <!-- Logo / Titre -->
+    <div class="logo-container">
+      <span class="logo-text">Victory <span class="logo-gold">Automatic</span></span>
+    </div>
+
+    <!-- Message introductif -->
+    <div class="info-box">
+      <strong>Important :</strong> En partageant la vidéo, vous faites la promotion de <span class="logo-gold">votre propre lien Victory Automatic</span>.  
+      Chaque partage peut vous apporter de nouveaux filleuls automatiquement.
+    </div>
+
+    <!-- Étape 1 : Inscription -->
+    <div id="step-registration" class="step-card">
+      <div class="step-badge">1</div>
+      <label for="username">Entrez votre pseudo :</label><br>
+      <input type="text" id="username" class="input-field" placeholder="Votre pseudo">
+      <button class="btn-gold" onclick="startYoutubeStep()">Commencer</button>
+    </div>
+
+    <!-- Étape 2 : Soutien YouTube -->
+    <div id="step-youtube" class="step-card hidden">
+      <div class="step-badge">2</div>
+      <p>Soutenez la communauté sur YouTube :</p>
+      <button id="btn-video" class="btn-primary" onclick="handleYoutubeInteraction()">Voir la vidéo</button>
+    </div>
+
+    <!-- Étape 3 : Accès Victory -->
+    <div id="step-victory" class="step-card hidden">
+      <div class="step-badge">3</div>
+      <p>Accédez au moteur Victory Automatic :</p>
+      <button class="btn-gold" onclick="openVictory()">Prendre ma place</button>
+
+      <!-- Bouton de partage dynamique -->
+      <button class="btn-whatsapp" 
+              onclick="shareVideo(document.getElementById('username').value)">
+        Partager la vidéo et inviter mes filleuls
+      </button>
+    </div>
+
+    <!-- Statut utilisateur -->
+    <div class="status-card">
+      <span>Statut :</span> 
+      <span id="user-status" class="status-inactive">INACTIF</span>
+    </div>
+
+    <!-- Timer ambiance -->
+    <div class="info-box timer-box">
+      <span>Temps restant :</span> <span id="countdown"></span>
+    </div>
+
+    <!-- Notifications -->
+    <div id="toast" class="toast"></div>
+
+  </div>
+
+  <!-- Script principal -->
+  <script src="app.js"></script>
+</body>
+</html>
