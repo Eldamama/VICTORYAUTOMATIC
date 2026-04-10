@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blog UNILINK | Stratégie Victory Automatic</title>
     <link rel="stylesheet" href="style.css">
+    <script src="app.js"></script>
 </head>
 <body style="background: #0a0a0b; color: white; font-family: sans-serif; line-height: 1.6; margin: 0; padding: 0;">
 
@@ -13,13 +14,6 @@
     </header>
 
     <article style="padding: 20px; max-width: 800px; margin: auto; padding-bottom: 100px;">
-        <!-- Message introductif -->
-        <div class="info-box">
-            <strong>Important :</strong> En partageant la vidéo, vous faites la promotion de 
-            <span class="logo-gold">votre propre lien Victory Automatic</span>.  
-            Chaque partage peut vous apporter de nouveaux filleuls automatiquement.
-        </div>
-
         <h1 style="color: #d4af37; font-size: 24px;">Comment Victory Automatic révolutionne le MLM à Kinshasa avec UNILINK</h1>
         
         <p>Le plus grand obstacle du marketing de réseau (MLM) en République Démocratique du Congo a toujours été le <strong>parrainage</strong>. Beaucoup rejoignent des opportunités mais restent bloqués car ils n'arrivent pas à construire une équipe.</p>
@@ -34,19 +28,17 @@
 
         <p>Ne soyez plus seul. Profitez d'une technologie qui travaille pour vous 24h/24.</p>
 
-        <a href="index.html" class="btn-gold" style="display:block;text-align:center;margin-top:30px;">
+        <a href="index.html" style="display: block; text-align: center; padding: 18px; text-decoration: none; border-radius: 8px; font-weight: bold; margin-top: 30px; background: #d4af37; color: black;">
             DÉMARRER MON CYCLE MAINTENANT
         </a>
 
         <!-- Bouton de partage dynamique -->
-        <button class="btn-whatsapp" 
-                style="margin-top:15px;" 
-                onclick="shareVideo('aimé123')">
-            Partager la vidéo et inviter mes filleuls
+        <button onclick="shareVideo('aimé123')" 
+                style="display: block; text-align: center; padding: 15px; background: #25D366; color: white; text-decoration: none; border-radius: 8px; margin-top: 15px; font-weight: bold; border: none; cursor: pointer;">
+            PARTAGER SUR WHATSAPP
         </button>
 
     </article>
 
-    <script src="app.js"></script>
 </body>
 </html>
