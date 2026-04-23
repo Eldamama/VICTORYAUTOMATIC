@@ -1,7 +1,10 @@
-// --- CONFIGURATION ---
-const _supabase = supabase.createClient("TA_SUPABASE_URL", "TON_ANON_KEY");
-const MON_LIEN_RACINE = "TON_ID_RACINE"; 
+// --- 1. CONFIGURATION (À REMPLIR) ---
+const SUPABASE_URL = "https://TON_PROJET.supabase.co";
+const SUPABASE_KEY = "TA_CLE_ANON_ICI";
+const MON_LIEN_RACINE = "tonIDparDefaut"; 
 const LIEN_VIDEO_YOUTUBE = "https://youtube.com/watch?v=TON_CODE_ICI"; 
+
+const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // --- LOGIQUE DE NOTIFICATION ---
 function showNotification(msg) {
@@ -13,24 +16,29 @@ function showNotification(msg) {
     }
 }
 
-// --- ÉTAPE 1 : INSCRIPTION RÉELLE DANS SUPABASE ---
+// --- ÉTAPE 1 : INSCRIPTION DANS LA BASE ---
 async function startYoutubeStep() {
-    const user = document.getElementById('username').value;
-    const mail = document.getElementById('email')?.value || ""; // Ajoute un champ email dans ton HTML si besoin
+    const userField = document.getElementById('username');
+    const emailField = document.getElementById('email'); // Assure-toi d'avoir id="email" dans ton HTML
+
+    const user = userField ? userField.value.trim() : "";
+    const mail = emailField ? emailField.value.trim() : "";
 
     if (user.length < 3) {
-        alert("Veuillez entrer un pseudo valide.");
+        alert("Veuillez entrer un pseudo valide (min 3 caractères).");
         return;
     }
 
-    // Récupération du parrain dans l'URL
+    // Récupérer le parrain dans l'URL (?ref=...)
     const urlParams = new URLSearchParams(window.location.search);
     const ref = urlParams.get('ref') || MON_LIEN_RACINE;
 
-    // Génération du code de parrainage de l'utilisateur
+    // Créer le code de parrainage de l'utilisateur (minuscules, sans espaces)
     const monCodeRef = user.toLowerCase().replace(/\s/g, '');
 
-    // ENREGISTREMENT DANS SUPABASE
+    showNotification("Enregistrement en cours...");
+
+    // ENVOI À SUPABASE
     const { error } = await _supabase.from('users').insert([
         { 
             username: user, 
@@ -41,18 +49,18 @@ async function startYoutubeStep() {
     ]);
 
     if (error) {
-        console.error(error);
-        alert("Erreur lors de l'enregistrement. Vérifiez votre connexion.");
+        console.error("Erreur Supabase:", error);
+        alert("Détail de l'erreur : " + (error.message || JSON.stringify(error)));
         return;
     }
 
-    // Si succès, on passe à l'étape suivante
+    // Si ça marche, on cache le formulaire et on montre la vidéo
     document.getElementById('step-registration').classList.add('hidden');
     document.getElementById('step-youtube').classList.remove('hidden');
-    showNotification("Profil créé avec succès !");
+    showNotification("Profil créé ! Regardez la vidéo pour activer.");
 }
 
-// --- ÉTAPE 2 : LE VERROU DE 180 SECONDES ---
+// --- ÉTAPE 2 : LE CHRONO YOUTUBE (180s) ---
 function handleYoutubeInteraction() {
     window.open(LIEN_VIDEO_YOUTUBE, "_blank");
 
@@ -69,26 +77,18 @@ function handleYoutubeInteraction() {
             btn.innerText = "✅ SOUTIEN VALIDÉ";
             btn.style.background = "#10b981";
             document.getElementById('step-victory').classList.remove('hidden');
+            showNotification("Félicitations ! Accès débloqué.");
         }
     }, 1000);
 }
 
-// --- ÉTAPE 3 : REDIRECTION VICTORY ---
+// --- ÉTAPE 3 : LIEN VICTORY & PARTAGE ---
 function openVictory() {
     const urlParams = new URLSearchParams(window.location.search);
     const referralID = urlParams.get('ref') || MON_LIEN_RACINE;
-
-    const finalLink = `https://victory-automatic.com/register/${referralID}`;
-    window.open(finalLink, "_blank");
-
-    const statusLabel = document.getElementById('user-status');
-    if (statusLabel) {
-        statusLabel.innerText = "ACTIF";
-        statusLabel.style.color = "#10b981";
-    }
+    window.open(`https://victory-automatic.com/register/${referralID}`, "_blank");
 }
 
-// --- ÉTAPE 4 : PARTAGE DU LIEN PERSONNEL ---
 function shareVideo() {
     const user = document.getElementById('username').value;
     const monCodeRef = user.toLowerCase().replace(/\s/g, '');
