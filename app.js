@@ -1,6 +1,7 @@
 // --- CONFIGURATION ---
-const MON_LIEN_RACINE = "tonIDparDefaut"; // Remplace par ton ID Victory racine
-const LIEN_VIDEO_YOUTUBE = "https://youtube.com/watch?v=TON_CODE_ICI"; // Mets ta vidéo neutre
+const _supabase = supabase.createClient("TA_SUPABASE_URL", "TON_ANON_KEY");
+const MON_LIEN_RACINE = "TON_ID_RACINE"; 
+const LIEN_VIDEO_YOUTUBE = "https://youtube.com/watch?v=TON_CODE_ICI"; 
 
 // --- LOGIQUE DE NOTIFICATION ---
 function showNotification(msg) {
@@ -12,25 +13,51 @@ function showNotification(msg) {
     }
 }
 
-// --- ÉTAPE 1 : TRANSITION APRÈS INSCRIPTION ---
-function startYoutubeStep() {
+// --- ÉTAPE 1 : INSCRIPTION RÉELLE DANS SUPABASE ---
+async function startYoutubeStep() {
     const user = document.getElementById('username').value;
+    const mail = document.getElementById('email')?.value || ""; // Ajoute un champ email dans ton HTML si besoin
+
     if (user.length < 3) {
-        alert("Veuillez entrer un pseudo valide pour continuer.");
+        alert("Veuillez entrer un pseudo valide.");
         return;
     }
+
+    // Récupération du parrain dans l'URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const ref = urlParams.get('ref') || MON_LIEN_RACINE;
+
+    // Génération du code de parrainage de l'utilisateur
+    const monCodeRef = user.toLowerCase().replace(/\s/g, '');
+
+    // ENREGISTREMENT DANS SUPABASE
+    const { error } = await _supabase.from('users').insert([
+        { 
+            username: user, 
+            email: mail, 
+            referred_by: ref, 
+            ref_code: monCodeRef 
+        }
+    ]);
+
+    if (error) {
+        console.error(error);
+        alert("Erreur lors de l'enregistrement. Vérifiez votre connexion.");
+        return;
+    }
+
+    // Si succès, on passe à l'étape suivante
     document.getElementById('step-registration').classList.add('hidden');
     document.getElementById('step-youtube').classList.remove('hidden');
-    showNotification("Pseudo enregistré. Prêt pour le boost !");
+    showNotification("Profil créé avec succès !");
 }
 
 // --- ÉTAPE 2 : LE VERROU DE 180 SECONDES ---
 function handleYoutubeInteraction() {
-    // Ouvrir la vidéo YouTube dans un nouvel onglet
     window.open(LIEN_VIDEO_YOUTUBE, "_blank");
 
     const btn = document.getElementById('btn-video');
-    let timeLeft = 180; // durée de 3 minutes
+    let timeLeft = 180; 
     btn.disabled = true;
 
     const countdown = setInterval(() => {
@@ -39,23 +66,17 @@ function handleYoutubeInteraction() {
 
         if (timeLeft <= 0) {
             clearInterval(countdown);
-            btn.innerText = "✅ SOUTIEN ORGANIC VALIDÉ";
+            btn.innerText = "✅ SOUTIEN VALIDÉ";
             btn.style.background = "#10b981";
-
             document.getElementById('step-victory').classList.remove('hidden');
-            showNotification("Félicitations ! Votre accès est prêt.");
         }
     }, 1000);
 }
 
-// --- ÉTAPE 3 : REDIRECTION DYNAMIQUE ---
+// --- ÉTAPE 3 : REDIRECTION VICTORY ---
 function openVictory() {
     const urlParams = new URLSearchParams(window.location.search);
-    let referralID = urlParams.get('ref');
-
-    if (!referralID) {
-        referralID = MON_LIEN_RACINE;
-    }
+    const referralID = urlParams.get('ref') || MON_LIEN_RACINE;
 
     const finalLink = `https://victory-automatic.com/register/${referralID}`;
     window.open(finalLink, "_blank");
@@ -64,50 +85,35 @@ function openVictory() {
     if (statusLabel) {
         statusLabel.innerText = "ACTIF";
         statusLabel.style.color = "#10b981";
-        statusLabel.classList.remove('status-inactive');
-        statusLabel.classList.add('status-active');
     }
-
-    showNotification("Bienvenue dans la matrice Victory !");
 }
 
-// --- ÉTAPE 4 : GÉNÉRATION DE LIEN DE PARTAGE ---
-function getShareLink(userID) {
-    return `${window.location.origin}${window.location.pathname}?ref=${userID}`;
-}
-
-function shareVideo(userID) {
-    const shareLink = getShareLink(userID);
-    const message = `Regarde cette vidéo et rejoins Victory : ${LIEN_VIDEO_YOUTUBE}\n\nInscris-toi ici : ${shareLink}`;
+// --- ÉTAPE 4 : PARTAGE DU LIEN PERSONNEL ---
+function shareVideo() {
+    const user = document.getElementById('username').value;
+    const monCodeRef = user.toLowerCase().replace(/\s/g, '');
+    const shareLink = `${window.location.origin}${window.location.pathname}?ref=${monCodeRef}`;
+    
+    const message = `Rejoins Victory et booste tes revenus : ${shareLink}`;
     
     if (navigator.share) {
-        navigator.share({
-            title: "Boost Victory",
-            text: message,
-            url: shareLink
-        }).then(() => {
-            showNotification("Vidéo partagée avec ton lien personnel !");
-        }).catch(console.error);
+        navigator.share({ title: "Victory Boost", text: message, url: shareLink });
     } else {
-        alert("Copie ce lien et partage-le : " + shareLink);
+        alert("Copie ton lien : " + shareLink);
     }
 }
 
 // --- TIMER DE 24H ---
-let time = 24 * 60 * 60;
-const timerDisplay = document.getElementById('countdown');
-
+let time = 86400;
 setInterval(() => {
-    let hours = Math.floor(time / 3600);
-    let minutes = Math.floor((time % 3600) / 60);
-    let seconds = time % 60;
-
-    hours = hours < 10 ? '0' + hours : hours;
-    minutes = minutes < 10 ? '0' + minutes : minutes;
-    seconds = seconds < 10 ? '0' + seconds : seconds;
-
-    if (timerDisplay) {
-        timerDisplay.innerHTML = `${hours}:${minutes}:${seconds}`;
+    if (time > 0) {
+        let hours = Math.floor(time / 3600);
+        let mins = Math.floor((time % 3600) / 60);
+        let secs = time % 60;
+        const timerDisplay = document.getElementById('countdown');
+        if (timerDisplay) {
+            timerDisplay.innerHTML = `${String(hours).padStart(2,'0')}:${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
+        }
+        time--;
     }
-    time--;
 }, 1000);
